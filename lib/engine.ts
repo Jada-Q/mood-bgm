@@ -3,126 +3,10 @@
 // samples: the same tiny synth renders every mood. Seeded RNG so a piece
 // can be regenerated identically and exported to WAV offline.
 
-export type MoodKey =
-  | "happy"
-  | "sad"
-  | "calm"
-  | "excited"
-  | "angry"
-  | "mystery";
+import { MOODS, type MoodDef, type MoodKey } from "./moods";
 
-interface ChordDef {
-  root: number; // bass root frequency
-  tones: number[]; // lead pool
-}
-
-interface MoodDef {
-  label: string;
-  cn: string;
-  bpm: [number, number]; // randomized within range
-  progression: ChordDef[];
-  leadWave: OscillatorType;
-  bassWave: OscillatorType;
-  leadOctave: number; // multiplier on tone pool
-  restChance: number; // melody breathing room
-  kickBeats: number[]; // eighth positions in the bar (0..7)
-  hatEighths: number[]; // eighth positions for hats
-  bassEveryEighth: boolean; // bouncing vs sustained
-  echo: boolean; // feedback delay for dreamy moods
-  swing: number; // 0 = straight, ~0.12 = lilt
-}
-
-// Note frequencies (A440 equal temperament).
-const C2 = 65.41, D2 = 73.42, Eb2 = 77.78, E2 = 82.41, F2 = 87.31,
-  G2 = 98.0, Ab2 = 103.83, A2 = 110.0, Bb2 = 116.54, B2 = 123.47,
-  C3 = 130.81, Db3 = 138.59, Eb3 = 155.56, E3 = 164.81, F3 = 174.61,
-  G3 = 196.0, Ab3 = 207.65, A3 = 220.0, Bb3 = 233.08, B3 = 246.94,
-  C4 = 261.63, Db4 = 277.18, D4 = 293.66, Eb4 = 311.13, E4 = 329.63,
-  F4 = 349.23, G4 = 392.0, Ab4 = 415.3, A4 = 440.0, Bb4 = 466.16,
-  B4 = 493.88, C5 = 523.25, D5 = 587.33, E5 = 659.25;
-
-export const MOODS: Record<MoodKey, MoodDef> = {
-  happy: {
-    label: "Happy", cn: "欢乐",
-    bpm: [118, 132],
-    progression: [
-      { root: C2, tones: [C4, E4, G4, C5] },
-      { root: G2, tones: [B3, D4, G4, B4] },
-      { root: A2, tones: [A3, C4, E4, A4] },
-      { root: F2, tones: [A3, C4, F4, A4] },
-    ],
-    leadWave: "square", bassWave: "triangle", leadOctave: 2,
-    restChance: 0.12, kickBeats: [0, 4], hatEighths: [1, 3, 5, 7],
-    bassEveryEighth: true, echo: false, swing: 0.1,
-  },
-  sad: {
-    label: "Sad", cn: "悲伤",
-    bpm: [66, 78],
-    progression: [
-      { root: A2, tones: [A3, C4, E4] },
-      { root: F2, tones: [A3, C4, F4] },
-      { root: C3, tones: [C4, E4, G4] },
-      { root: G2, tones: [B3, D4, G4] },
-    ],
-    leadWave: "sine", bassWave: "sine", leadOctave: 1,
-    restChance: 0.45, kickBeats: [], hatEighths: [],
-    bassEveryEighth: false, echo: true, swing: 0,
-  },
-  calm: {
-    label: "Calm", cn: "平静",
-    bpm: [78, 90],
-    progression: [
-      { root: C3, tones: [C4, E4, G4, B4] }, // Cmaj7
-      { root: F2, tones: [A3, C4, E4, F4] }, // Fmaj7
-      { root: A2, tones: [A3, C4, E4, G4] }, // Am7
-      { root: G2, tones: [B3, D4, F4, G4] }, // G7
-    ],
-    leadWave: "triangle", bassWave: "sine", leadOctave: 1,
-    restChance: 0.4, kickBeats: [], hatEighths: [3, 7],
-    bassEveryEighth: false, echo: true, swing: 0,
-  },
-  excited: {
-    label: "Excited", cn: "激动",
-    bpm: [144, 162],
-    progression: [
-      { root: C2, tones: [C4, E4, G4, C5] },
-      { root: F2, tones: [A3, C4, F4, A4] },
-      { root: G2, tones: [B3, D4, G4, B4] },
-      { root: G2, tones: [B3, D4, G4, D5] },
-    ],
-    leadWave: "square", bassWave: "square", leadOctave: 2,
-    restChance: 0.05, kickBeats: [0, 2, 4, 6], hatEighths: [0, 1, 2, 3, 4, 5, 6, 7],
-    bassEveryEighth: true, echo: false, swing: 0,
-  },
-  angry: {
-    label: "Angry", cn: "愤怒",
-    bpm: [132, 148],
-    progression: [
-      // Phrygian riff: i — bII, dark and pounding.
-      { root: E2, tones: [E3, G3, B3, E4] },
-      { root: E2, tones: [E3, G3, B3, E4] },
-      { root: F2, tones: [F3, Ab3, C4, F4] },
-      { root: E2, tones: [E3, G3, Bb3, E4] },
-    ],
-    leadWave: "sawtooth", bassWave: "sawtooth", leadOctave: 1,
-    restChance: 0.15, kickBeats: [0, 3, 4, 6], hatEighths: [2, 6],
-    bassEveryEighth: true, echo: false, swing: 0,
-  },
-  mystery: {
-    label: "Mystery", cn: "神秘",
-    bpm: [84, 96],
-    progression: [
-      // Harmonic-minor color: i — bVI — bIII — V
-      { root: A2, tones: [A3, C4, E4] },
-      { root: F2, tones: [A3, C4, F4] },
-      { root: C3, tones: [C4, Eb4, G4] },
-      { root: E2, tones: [Ab3, B3, E4] },
-    ],
-    leadWave: "sine", bassWave: "triangle", leadOctave: 2,
-    restChance: 0.35, kickBeats: [0], hatEighths: [5],
-    bassEveryEighth: false, echo: true, swing: 0.08,
-  },
-};
+export { MOODS, GROUPS } from "./moods";
+export type { MoodKey, MoodDef, MoodGroup } from "./moods";
 
 // Mulberry32 — tiny seedable RNG so a piece can be re-rendered identically.
 function rng(seed: number): () => number {
@@ -227,7 +111,7 @@ function schedulePiece(
         melodyIdx + moves[Math.floor(rand() * moves.length)]));
       tone(mood.leadWave, chord.tones[melodyIdx] * mood.leadOctave, t,
         mood.leadWave === "sawtooth" ? 0.14 : mood.leadWave === "square" ? 0.12 : 0.22,
-        eighth * (mood.echo ? 2.4 : 1.5));
+        eighth * (mood.noteLen ?? (mood.echo ? 2.4 : 1.5)));
     }
     if (mood.kickBeats.includes(pos)) kick(t);
     if (mood.hatEighths.includes(pos)) hat(t);
