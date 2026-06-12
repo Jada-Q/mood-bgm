@@ -94,19 +94,20 @@ function schedulePiece(
   };
 
   const totalEighths = Math.floor(seconds / eighth);
+  const barE = mood.barEighths ?? 8; // eighths per bar (6 = waltz/jig)
   let melodyIdx = Math.floor(rand() * 3);
   for (let e = 0; e < totalEighths; e++) {
     const swingOffset = e % 2 === 1 ? eighth * mood.swing : 0;
     const t = startAt + e * eighth + swingOffset;
-    const bar = Math.floor(e / 8) % mood.progression.length;
-    const pos = e % 8;
+    const bar = Math.floor(e / barE) % mood.progression.length;
+    const pos = e % barE;
     const chord = mood.progression[bar];
 
     // Bass
     if (mood.bassEveryEighth) {
       tone(mood.bassWave, pos % 2 === 0 ? chord.root : chord.root * 2, t, 0.5, eighth * 1.6);
     } else if (pos === 0) {
-      tone(mood.bassWave, chord.root, t, 0.5, eighth * 7);
+      tone(mood.bassWave, chord.root, t, 0.5, eighth * (barE - 1));
     }
     // Lead: random walk inside the chord pool.
     if (rand() > mood.restChance) {
