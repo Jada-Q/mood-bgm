@@ -4,9 +4,12 @@
 // can be regenerated identically and exported to WAV offline.
 
 import { MOODS, type MoodDef, type MoodKey } from "./moods";
+import { INSTRUMENTS, type InstrumentKey } from "./instruments";
 
 export { MOODS, GROUPS } from "./moods";
 export type { MoodKey, MoodDef, MoodGroup } from "./moods";
+export { INSTRUMENTS } from "./instruments";
+export type { InstrumentKey } from "./instruments";
 
 // Mulberry32 — tiny seedable RNG so a piece can be re-rendered identically.
 function rng(seed: number): () => number {
@@ -27,6 +30,7 @@ function schedulePiece(
   seed: number,
   startAt: number,
   seconds: number,
+  instrument: InstrumentKey = "auto",
 ): void {
   const rand = rng(seed);
   const bpm = mood.bpm[0] + rand() * (mood.bpm[1] - mood.bpm[0]);
@@ -109,9 +113,15 @@ function schedulePiece(
       const moves = [-1, -1, 1, 1, 2, -2, 0];
       melodyIdx = Math.max(0, Math.min(chord.tones.length - 1,
         melodyIdx + moves[Math.floor(rand() * moves.length)]));
-      tone(mood.leadWave, chord.tones[melodyIdx] * mood.leadOctave, t,
-        mood.leadWave === "sawtooth" ? 0.14 : mood.leadWave === "square" ? 0.12 : 0.22,
-        eighth * (mood.noteLen ?? (mood.echo ? 2.4 : 1.5)));
+      const leadFreq = chord.tones[melodyIdx] * mood.leadOctave;
+      const leadVol =
+        mood.leadWave === "sawtooth" ? 0.14 : mood.leadWave === "square" ? 0.12 : 0.22;
+      const leadDecay = eighth * (mood.noteLen ?? (mood.echo ? 2.4 : 1.5));
+      if (instrument === "auto") {
+        tone(mood.leadWave, leadFreq, t, leadVol, leadDecay);
+      } else {
+        INSTRUMENTS[instrument].play(ctx, bus, leadFreq, t, 0.3, leadDecay);
+      }
     }
     if (mood.kickBeats.includes(pos)) kick(t);
     if (mood.hatEighths.includes(pos)) hat(t);
@@ -123,7 +133,7 @@ export interface LivePlayer {
 }
 
 /** Play a mood live, looping until stopped. */
-export function playLive(moodKey: MoodKey, seed: number): LivePlayer {
+export function playLive(moodKey: MoodKey, seed: number, instrument: InstrumentKey = "auto"): LivePlayer {
   const ctx = new AudioContext();
   const master = ctx.createGain();
   master.gain.value = 0.16;
@@ -132,7 +142,7 @@ export function playLive(moodKey: MoodKey, seed: number): LivePlayer {
   let offset = ctx.currentTime + 0.08;
   let chunkNo = 0;
   const queue = () => {
-    schedulePiece(ctx, master, MOODS[moodKey], seed + chunkNo, offset, CHUNK);
+    schedulePiece(ctx, master, MOODS[moodKey], seed + chunkNo, offset, CHUNK, instrument);
     offset += CHUNK;
     chunkNo++;
   };
@@ -151,13 +161,14 @@ export function playLive(moodKey: MoodKey, seed: number): LivePlayer {
 /** Render `seconds` of a piece offline and return a WAV blob. */
 export async function renderWav(
   moodKey: MoodKey, seed: number, seconds: number,
+  instrument: InstrumentKey = "auto",
 ): Promise<Blob> {
   const rate = 44100;
   const ctx = new OfflineAudioContext(2, rate * seconds, rate);
   const master = ctx.createGain();
   master.gain.value = 0.16;
   master.connect(ctx.destination);
-  schedulePiece(ctx, master, MOODS[moodKey], seed, 0, seconds - 1.5);
+  schedulePiece(ctx, master, MOODS[moodKey], seed, 0, seconds - 1.5, instrument);
   const buf = await ctx.startRendering();
   return encodeWav(buf);
 }

@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GROUPS, MOODS, playLive, renderWav } from "@/lib/engine";
-import type { LivePlayer, MoodKey } from "@/lib/engine";
+import { GROUPS, INSTRUMENTS, MOODS, playLive, renderWav } from "@/lib/engine";
+import type { InstrumentKey, LivePlayer, MoodKey } from "@/lib/engine";
+
+const INSTRUMENT_KEYS: InstrumentKey[] = [
+  "auto", "pluck", "piano", "musicbox", "bell", "flute", "organ", "strings", "chip",
+];
 
 export default function Home() {
   const [mood, setMood] = useState<MoodKey | null>(null);
   const [seed, setSeed] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [instr, setInstr] = useState<InstrumentKey>("auto");
   const playerRef = useRef<LivePlayer | null>(null);
 
   useEffect(() => {
@@ -16,12 +21,17 @@ export default function Home() {
     return () => playerRef.current?.stop();
   }, []);
 
-  const start = (m: MoodKey, s: number) => {
+  const start = (m: MoodKey, s: number, i: InstrumentKey = instr) => {
     playerRef.current?.stop();
-    playerRef.current = playLive(m, s);
+    playerRef.current = playLive(m, s, i);
     setMood(m);
     setSeed(s);
     setPlaying(true);
+  };
+
+  const pickInstrument = (i: InstrumentKey) => {
+    setInstr(i);
+    if (mood && playing) start(mood, seed, i); // same piece, new voice
   };
 
   const stop = () => {
@@ -34,11 +44,11 @@ export default function Home() {
     if (!mood) return;
     setExporting(true);
     try {
-      const blob = await renderWav(mood, seed, 32);
+      const blob = await renderWav(mood, seed, 32, instr);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `bgm-${mood}-${seed}.wav`;
+      a.download = `bgm-${mood}-${instr}-${seed}.wav`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -91,6 +101,23 @@ export default function Home() {
             </button>
           </div>
         ) : null}
+        <div className="flex max-w-xl flex-wrap justify-center gap-1.5">
+          {INSTRUMENT_KEYS.map((k) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => pickInstrument(k)}
+              className={
+                "rounded-full border-2 border-[#22302c] px-3 py-1 font-mono text-[10px] uppercase tracking-wider shadow-[0_2px_0_rgba(34,48,44,0.35)] active:translate-y-0.5 " +
+                (instr === k
+                  ? "bg-[#22302c] text-[#efece3]"
+                  : "bg-[#efece3]/90 text-[#22302c]")
+              }
+            >
+              {k === "auto" ? "自动" : INSTRUMENTS[k].cn}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex max-w-3xl flex-col gap-8">
