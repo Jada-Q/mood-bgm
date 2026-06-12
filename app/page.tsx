@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GROUPS, INSTRUMENTS, MOODS, playLive, renderWav } from "@/lib/engine";
 import type { InstrumentKey, LivePlayer, MoodKey } from "@/lib/engine";
+import { isLoaded, isSampled, loadSampled } from "@/lib/samples";
 
 const INSTRUMENT_KEYS: InstrumentKey[] = [
   "auto",
@@ -22,7 +23,11 @@ export default function Home() {
   const [playing, setPlaying] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [instr, setInstr] = useState<InstrumentKey>("auto");
+  const [loadingInstr, setLoadingInstr] = useState<InstrumentKey | null>(null);
   const playerRef = useRef<LivePlayer | null>(null);
+  // Latest state for async sample-load callbacks (avoids stale closures).
+  const liveRef = useRef({ mood: null as MoodKey | null, seed: 1, playing: false, instr: "auto" as InstrumentKey });
+  liveRef.current = { mood, seed, playing, instr };
 
   useEffect(() => {
     setSeed(Math.floor(Math.random() * 1e9));
@@ -40,6 +45,15 @@ export default function Home() {
   const pickInstrument = (i: InstrumentKey) => {
     setInstr(i);
     if (mood && playing) start(mood, seed, i); // same piece, new voice
+    if (isSampled(i) && !isLoaded(i)) {
+      setLoadingInstr(i);
+      void loadSampled(i).then(() => {
+        setLoadingInstr((cur) => (cur === i ? null : cur));
+        // restart so the real samples take over immediately, not next chunk
+        const s = liveRef.current;
+        if (s.instr === i && s.mood && s.playing) start(s.mood, s.seed, i);
+      });
+    }
   };
 
   const stop = () => {
@@ -52,6 +66,7 @@ export default function Home() {
     if (!mood) return;
     setExporting(true);
     try {
+      if (isSampled(instr)) await loadSampled(instr); // real samples in the file too
       const blob = await renderWav(mood, seed, 32, instr);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -123,6 +138,7 @@ export default function Home() {
               }
             >
               {k === "auto" ? "自动" : INSTRUMENTS[k].cn}
+              {loadingInstr === k ? " ⏳" : ""}
             </button>
           ))}
         </div>

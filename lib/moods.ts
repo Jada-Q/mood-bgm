@@ -27,7 +27,7 @@ export interface MoodDef {
 
 // Note frequencies (A440 equal temperament).
 const C2 = 65.41, D2 = 73.42, E2 = 82.41, F2 = 87.31,
-  G2 = 98.0, A2 = 110.0, B2 = 123.47,
+  G2 = 98.0, Ab2 = 103.83, A2 = 110.0, Bb2 = 116.54, B2 = 123.47,
   C3 = 130.81, D3 = 146.83, Eb3 = 155.56, E3 = 164.81, F3 = 174.61,
   G3 = 196.0, Ab3 = 207.65, A3 = 220.0, Bb3 = 233.08, B3 = 246.94,
   C4 = 261.63, Db4 = 277.18, D4 = 293.66, Eb4 = 311.13, E4 = 329.63,
@@ -49,7 +49,10 @@ export type MoodKey =
   | "menu" | "boss" | "village" | "scifi" | "horror" | "ceremony"
   // 风格 genres
   | "jazz" | "bossa" | "blues" | "rock" | "funk" | "reggae" | "disco"
-  | "synthwave" | "lofi" | "waltz" | "march" | "celtic" | "guofeng" | "wafu";
+  | "synthwave" | "lofi" | "waltz" | "march" | "celtic" | "guofeng" | "wafu"
+  // 作曲家 composers
+  | "bach" | "vivaldi" | "mozart" | "beethoven" | "chopin"
+  | "tchaikovsky" | "debussy" | "satie" | "glass" | "hisaishi";
 
 export const MOODS: Record<MoodKey, MoodDef> = {
   // ============================================================ 欢乐系 ==
@@ -611,6 +614,139 @@ export const MOODS: Record<MoodKey, MoodDef> = {
     restChance: 0.5, kickBeats: [0], hatEighths: [5],
     bassEveryEighth: false, echo: true, swing: 0, noteLen: 3,
   },
+  // ============================================================ 作曲家 ==
+  // "风" = in the style of: each recipe borrows the composer's signature
+  // device (progression / meter / texture), not any actual melody.
+  bach: {
+    label: "Bach", cn: "巴赫风", bpm: [96, 110],
+    progression: [
+      // Circle of fifths with stepwise tone pools — perpetual-motion counterpoint.
+      { root: A2, tones: [A3, B3, C4, D4, E4] },
+      { root: D3, tones: [D4, E4, F4, G4, A4] },
+      { root: G2, tones: [G3, A3, B3, C4, D4] },
+      { root: C3, tones: [C4, D4, E4, F4, G4] },
+    ],
+    leadWave: "triangle", bassWave: "triangle", leadOctave: 1,
+    restChance: 0.06, kickBeats: [], hatEighths: [],
+    bassEveryEighth: true, echo: false, swing: 0, noteLen: 0.9,
+  },
+  vivaldi: {
+    label: "Vivaldi", cn: "维瓦尔第风", bpm: [138, 152],
+    progression: [
+      // Spring-allegro energy: bright sequences over a driving continuo.
+      { root: E2, tones: [E4, G4, A4, B4, E5] },
+      { root: C3, tones: [C4, D4, E4, G4] },
+      { root: A2, tones: [A3, B3, C4, E4] },
+      { root: B2, tones: [B3, Eb4, Gb4, A4] },
+    ],
+    leadWave: "triangle", bassWave: "triangle", leadOctave: 1,
+    restChance: 0.05, kickBeats: [], hatEighths: [],
+    bassEveryEighth: true, echo: false, swing: 0, noteLen: 0.7,
+  },
+  mozart: {
+    label: "Mozart", cn: "莫扎特风", bpm: [116, 128],
+    progression: [
+      // Galant clarity: I — IV — I — V with an Alberti-style murmuring bass.
+      { root: C2, tones: [C4, E4, G4, C5] },
+      { root: F2, tones: [A3, C4, F4, A4] },
+      { root: C2, tones: [C4, E4, G4, E5] },
+      { root: G2, tones: [B3, D4, F4, G4] },
+    ],
+    leadWave: "triangle", bassWave: "sine", leadOctave: 2,
+    restChance: 0.15, kickBeats: [], hatEighths: [],
+    bassEveryEighth: true, echo: false, swing: 0, noteLen: 0.8,
+  },
+  beethoven: {
+    label: "Beethoven", cn: "贝多芬风", bpm: [116, 130],
+    progression: [
+      // C-minor defiance: i — bVI — iv — V, fate knocking in the kick.
+      { root: C3, tones: [C4, Eb4, G4, C5] },
+      { root: Ab2, tones: [Ab3, C4, Eb4, Ab4] },
+      { root: F2, tones: [F3, Ab3, C4, F4] },
+      { root: G2, tones: [G3, B3, D4, G4] },
+    ],
+    leadWave: "triangle", bassWave: "triangle", leadOctave: 1,
+    restChance: 0.12, kickBeats: [0, 4], hatEighths: [],
+    bassEveryEighth: false, echo: false, swing: 0, noteLen: 1.1,
+  },
+  chopin: {
+    label: "Chopin", cn: "肖邦风", bpm: [58, 70],
+    progression: [
+      // Nocturne: minor 7th colors, long singing lines, pedal haze (echo).
+      { root: A2, tones: [A3, B3, C4, E4] },
+      { root: D3, tones: [D4, F4, A4, C5] },
+      { root: E2, tones: [Ab3, B3, D4, E4] },
+      { root: A2, tones: [A3, C4, E4, A4] },
+    ],
+    leadWave: "sine", bassWave: "sine", leadOctave: 1,
+    restChance: 0.35, kickBeats: [], hatEighths: [],
+    bassEveryEighth: false, echo: true, swing: 0.06, noteLen: 3,
+  },
+  tchaikovsky: {
+    label: "Tchaikovsky", cn: "柴可夫斯基风", bpm: [136, 154],
+    progression: [
+      // Ballet waltz in minor — sweeping, romantic, always dancing.
+      { root: A2, tones: [A3, C4, E4, A4] },
+      { root: D3, tones: [D4, F4, A4, D5] },
+      { root: E2, tones: [Ab3, B3, E4, B4] },
+      { root: A2, tones: [A3, C4, E4, C5] },
+    ],
+    leadWave: "triangle", bassWave: "triangle", leadOctave: 1,
+    restChance: 0.18, kickBeats: [0], hatEighths: [2, 4],
+    bassEveryEighth: false, echo: false, swing: 0, noteLen: 1.6, barEighths: 6,
+  },
+  debussy: {
+    label: "Debussy", cn: "德彪西风", bpm: [66, 78],
+    progression: [
+      // Impressionism: parallel maj7 planes drifting with no cadence.
+      { root: C3, tones: [C4, E4, G4, B4] },
+      { root: Bb2, tones: [Bb3, D4, F4, A4] },
+      { root: Ab2, tones: [Ab3, C4, Eb4, G4] },
+      { root: Bb2, tones: [Bb3, D4, F4, A4] },
+    ],
+    leadWave: "sine", bassWave: "sine", leadOctave: 2,
+    restChance: 0.38, kickBeats: [], hatEighths: [],
+    bassEveryEighth: false, echo: true, swing: 0, noteLen: 2.8,
+  },
+  satie: {
+    label: "Satie", cn: "萨蒂风", bpm: [69, 79],
+    progression: [
+      // Gymnopédie: two maj7 chords rocking in slow 3/4, furniture music.
+      { root: G2, tones: [G3, B3, D4, Gb4] },
+      { root: D3, tones: [D4, Gb4, A4, C5] },
+      { root: G2, tones: [G3, B3, D4, Gb4] },
+      { root: D3, tones: [D4, Gb4, A4, E5] },
+    ],
+    leadWave: "sine", bassWave: "sine", leadOctave: 1,
+    restChance: 0.42, kickBeats: [0], hatEighths: [],
+    bassEveryEighth: false, echo: true, swing: 0, noteLen: 2.6, barEighths: 6,
+  },
+  glass: {
+    label: "Glass", cn: "格拉斯风", bpm: [120, 132],
+    progression: [
+      // Minimalism: two alternating chords, relentless arpeggio machine.
+      { root: A2, tones: [A3, C4, E4, A4] },
+      { root: F2, tones: [F3, A3, C4, F4] },
+      { root: A2, tones: [A3, C4, E4, A4] },
+      { root: G2, tones: [G3, B3, D4, G4] },
+    ],
+    leadWave: "triangle", bassWave: "sine", leadOctave: 2,
+    restChance: 0, kickBeats: [], hatEighths: [],
+    bassEveryEighth: true, echo: false, swing: 0, noteLen: 0.6,
+  },
+  hisaishi: {
+    label: "Hisaishi", cn: "久石让风", bpm: [76, 88],
+    progression: [
+      // Ghibli warmth: royal-road cousins with added 9ths, gentle and vast.
+      { root: F2, tones: [F3, A3, C4, E4] },
+      { root: G2, tones: [G3, B3, D4] },
+      { root: E2, tones: [E4, G4, B4, D5] },
+      { root: A2, tones: [A3, B3, C4, E4] },
+    ],
+    leadWave: "triangle", bassWave: "sine", leadOctave: 2,
+    restChance: 0.28, kickBeats: [0], hatEighths: [],
+    bassEveryEighth: false, echo: true, swing: 0.05, noteLen: 2,
+  },
 };
 
 export interface MoodGroup {
@@ -640,6 +776,14 @@ export const GROUPS: MoodGroup[] = [
     keys: [
       "jazz", "bossa", "blues", "rock", "funk", "reggae", "disco",
       "synthwave", "lofi", "waltz", "march", "celtic", "guofeng", "wafu",
+    ],
+  },
+  {
+    title: "作曲家",
+    color: "#5d4a6b",
+    keys: [
+      "bach", "vivaldi", "mozart", "beethoven", "chopin",
+      "tchaikovsky", "debussy", "satie", "glass", "hisaishi",
     ],
   },
 ];

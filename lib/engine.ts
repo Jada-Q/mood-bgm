@@ -11,6 +11,29 @@ export type { MoodKey, MoodDef, MoodGroup } from "./moods";
 export { INSTRUMENTS } from "./instruments";
 export type { InstrumentKey } from "./instruments";
 
+// Procedural room: an impulse response of decaying noise through a convolver.
+// Real instruments are never heard in an anechoic chamber — a little space
+// fuses the partials together and hides the synthesis.
+function makeReverb(ctx: BaseAudioContext, out: AudioNode): AudioNode {
+  const len = Math.ceil(ctx.sampleRate * 1.7);
+  const ir = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = ir.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4);
+    }
+  }
+  const conv = ctx.createConvolver();
+  conv.buffer = ir;
+  const wet = ctx.createGain();
+  wet.gain.value = 0.24;
+  const dry = ctx.createGain();
+  dry.connect(out);
+  dry.connect(conv);
+  conv.connect(wet).connect(out);
+  return dry;
+}
+
 // Mulberry32 — tiny seedable RNG so a piece can be re-rendered identically.
 function rng(seed: number): () => number {
   let s = seed >>> 0;
@@ -114,14 +137,19 @@ function schedulePiece(
       const moves = [-1, -1, 1, 1, 2, -2, 0];
       melodyIdx = Math.max(0, Math.min(chord.tones.length - 1,
         melodyIdx + moves[Math.floor(rand() * moves.length)]));
-      const leadFreq = chord.tones[melodyIdx] * mood.leadOctave;
+      // Humanize: real players never land exactly on the grid or the pitch.
+      // Seeded rand keeps WAV exports identical to what was heard.
+      const tH = t + (rand() - 0.5) * 0.014; // ±7ms
+      const leadFreq =
+        chord.tones[melodyIdx] * mood.leadOctave *
+        Math.pow(2, ((rand() - 0.5) * 7) / 1200); // ±3.5 cents
       const leadVol =
         mood.leadWave === "sawtooth" ? 0.14 : mood.leadWave === "square" ? 0.12 : 0.22;
       const leadDecay = eighth * (mood.noteLen ?? (mood.echo ? 2.4 : 1.5));
       if (instrument === "auto") {
-        tone(mood.leadWave, leadFreq, t, leadVol, leadDecay);
+        tone(mood.leadWave, leadFreq, tH, leadVol, leadDecay);
       } else {
-        INSTRUMENTS[instrument].play(ctx, bus, leadFreq, t, 0.3, leadDecay);
+        INSTRUMENTS[instrument].play(ctx, bus, leadFreq, tH, 0.3, leadDecay);
       }
     }
     if (mood.kickBeats.includes(pos)) kick(t);
@@ -138,7 +166,7 @@ export function playLive(moodKey: MoodKey, seed: number, instrument: InstrumentK
   const ctx = new AudioContext();
   const master = ctx.createGain();
   master.gain.value = 0.16;
-  master.connect(ctx.destination);
+  master.connect(makeReverb(ctx, ctx.destination));
   const CHUNK = 16; // schedule 16s at a time
   let offset = ctx.currentTime + 0.08;
   let chunkNo = 0;
@@ -168,7 +196,7 @@ export async function renderWav(
   const ctx = new OfflineAudioContext(2, rate * seconds, rate);
   const master = ctx.createGain();
   master.gain.value = 0.16;
-  master.connect(ctx.destination);
+  master.connect(makeReverb(ctx, ctx.destination));
   schedulePiece(ctx, master, MOODS[moodKey], seed, 0, seconds - 1.5, instrument);
   const buf = await ctx.startRendering();
   return encodeWav(buf);

@@ -1,7 +1,10 @@
-// Instrument bank — every voice is SYNTHESIZED (no samples): classic
-// waveforms, additive stacks (organ, piano-ish), inharmonic partials
-// (bell, music box) and Karplus-Strong plucked string (a looped single
-// period of noise through a darkening lowpass — physics in 15 lines).
+// Instrument bank. Two tiers per instrument:
+//   1. real FluidR3 samples (lib/samples.ts), used the moment they're loaded;
+//   2. a synthesized fallback (below) so sound starts instantly / offline.
+// The fallbacks carry attack-noise transients — bow scrape, hammer thump,
+// breath chiff — because the first 100ms is how ears identify instruments.
+
+import { isSampled, playSample } from "./samples";
 
 export type InstrumentKey =
   | "auto"
@@ -44,6 +47,27 @@ function env(ctx: BaseAudioContext, t: number, vol: number, decay: number, attac
   return g;
 }
 
+// Short filtered-noise transient — the "physical contact" part of a note.
+function noiseBurst(
+  ctx: BaseAudioContext, dest: AudioNode, t: number,
+  filterType: BiquadFilterType, filterFreq: number,
+  vol: number, dur: number,
+) {
+  const n = Math.ceil(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const flt = ctx.createBiquadFilter();
+  flt.type = filterType;
+  flt.frequency.value = filterFreq;
+  const g = ctx.createGain();
+  g.gain.value = vol;
+  src.connect(flt).connect(g).connect(dest);
+  src.start(t);
+}
+
 function osc(
   ctx: BaseAudioContext, dest: AudioNode, type: OscillatorType,
   freq: number, t: number, vol: number, decay: number, attack = 0.005, detune = 0,
@@ -74,6 +98,7 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
       const vibGain = ctx.createGain();
       vibGain.gain.value = f * 0.006;
       vib.connect(vibGain).connect(o.frequency);
+      noiseBurst(ctx, dest, t, "highpass", 2500, v * 0.1, 0.05); // breath chiff
       const g = env(ctx, t, v, d, 0.06); // soft breathy attack
       o.connect(g).connect(dest);
       o.start(t); vib.start(t);
@@ -105,6 +130,7 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
   piano: {
     label: "Piano-ish", cn: "钢琴",
     play: (ctx, dest, f, t, v, d) => {
+      noiseBurst(ctx, dest, t, "lowpass", 900, v * 0.25, 0.02); // hammer thump
       osc(ctx, dest, "triangle", f, t, v * 0.7, d);
       osc(ctx, dest, "sine", f * 2, t, v * 0.25, d * 0.6);
       osc(ctx, dest, "sine", f * 3, t, v * 0.12, d * 0.35);
@@ -164,7 +190,7 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
       o.type = "sawtooth";
       o.frequency.value = f;
       const vib = ctx.createOscillator();
-      vib.frequency.value = 6;
+      vib.frequency.value = 5.6 + Math.random() * 0.9; // no two notes wobble alike
       const vibGain = ctx.createGain();
       vibGain.gain.value = f * 0.008;
       vib.connect(vibGain).connect(o.frequency);
@@ -172,6 +198,7 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
       lp.type = "lowpass";
       lp.frequency.value = Math.min(7000, f * 5);
       lp.Q.value = 1.2; // a hint of body resonance
+      noiseBurst(ctx, dest, t, "bandpass", f * 3, v * 0.12, 0.07); // bow scrape
       const g = env(ctx, t, v * 0.45, d * 1.2, 0.07);
       o.connect(lp).connect(g).connect(dest);
       o.start(t); vib.start(t);
@@ -187,7 +214,7 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
       o.type = "sawtooth";
       o.frequency.value = ff;
       const vib = ctx.createOscillator();
-      vib.frequency.value = 4.5;
+      vib.frequency.value = 4.2 + Math.random() * 0.8;
       const vibGain = ctx.createGain();
       vibGain.gain.value = ff * 0.007;
       vib.connect(vibGain).connect(o.frequency);
@@ -195,6 +222,7 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
       lp.type = "lowpass";
       lp.frequency.value = Math.min(3500, ff * 4);
       lp.Q.value = 1.4;
+      noiseBurst(ctx, dest, t, "bandpass", ff * 3, v * 0.14, 0.09); // slow bow bite
       const g = env(ctx, t, v * 0.55, d * 1.4, 0.1);
       o.connect(lp).connect(g).connect(dest);
       o.start(t); vib.start(t);
@@ -283,6 +311,7 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
       bp.type = "bandpass";
       bp.frequency.value = Math.min(4000, f * 3);
       bp.Q.value = 0.8;
+      noiseBurst(ctx, dest, t, "bandpass", 2000, v * 0.1, 0.025); // tongued attack
       const g = env(ctx, t, v * 0.6, d, 0.025);
       o.connect(bp).connect(g).connect(dest);
       o.start(t);
@@ -327,3 +356,16 @@ export const INSTRUMENTS: Record<Exclude<InstrumentKey, "auto">, Instrument> = {
     },
   },
 };
+
+// Sample-first dispatch: once an instrument's real samples are in memory the
+// synth fallback above goes quiet automatically — no state, no switches.
+for (const k of Object.keys(INSTRUMENTS) as Exclude<InstrumentKey, "auto">[]) {
+  if (!isSampled(k)) continue;
+  const synth = INSTRUMENTS[k].play;
+  INSTRUMENTS[k] = {
+    ...INSTRUMENTS[k],
+    play: (ctx, dest, f, t, v, d) => {
+      if (!playSample(ctx, dest, k, f, t, v * 1.5, d)) synth(ctx, dest, f, t, v, d);
+    },
+  };
+}
