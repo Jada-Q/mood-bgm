@@ -5,7 +5,15 @@ import { GROUPS, INSTRUMENTS, MOODS, playLive, renderWav } from "@/lib/engine";
 import type { InstrumentKey, LivePlayer, MoodKey } from "@/lib/engine";
 
 const INSTRUMENT_KEYS: InstrumentKey[] = [
-  "auto", "pluck", "piano", "musicbox", "bell", "flute", "organ", "strings", "chip",
+  "auto",
+  // strings
+  "violin", "cello", "strings", "harp", "guitar", "pluck",
+  // keys & mallets
+  "piano", "organ", "accordion", "marimba", "vibraphone", "musicbox", "bell",
+  // winds & voice
+  "flute", "trumpet", "choir",
+  // retro
+  "chip",
 ];
 
 export default function Home() {
