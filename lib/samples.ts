@@ -1,5 +1,6 @@
-// Real-instrument samples — FluidR3 General MIDI soundfont (MIT) rendered to
-// mp3, served from jsDelivr. Each instrument lazily loads ~15 notes spaced a
+// Real-instrument samples — FluidR3 General MIDI soundfont by Frank Wen,
+// CC-BY 3.0 (attribution in README), rendered to mp3, served from jsDelivr.
+// Each instrument lazily loads ~15 notes spaced a
 // minor third apart; everything between is pitch-shifted via playbackRate.
 // Until samples arrive (or if the CDN is unreachable) the synthesized
 // fallback in instruments.ts keeps playing — the music never stops.

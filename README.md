@@ -29,4 +29,8 @@ pnpm install
 pnpm dev   # http://localhost:3015
 ```
 
-MIT.
+## Credits
+
+Real-instrument samples: [FluidR3 GM soundfont](https://github.com/gleitz/midi-js-soundfonts) (Frank Wen), [CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/us/), served via jsDelivr. Everything else is synthesized in-browser.
+
+MIT (code). Samples remain CC-BY 3.0.
