@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { GROUPS, INSTRUMENTS, MOODS, playLive, renderWav } from "@/lib/engine";
 import type { InstrumentKey, LivePlayer, MoodKey } from "@/lib/engine";
 import { isLoaded, isSampled, loadSampled } from "@/lib/samples";
+import { startFaceMood, stopFaceMood } from "@/lib/mediapipe-face";
+import { classifyBlendshapes, createMoodStabilizer } from "@/lib/emotion-to-mood";
 
 const INSTRUMENT_KEYS: InstrumentKey[] = [
   "auto",
@@ -24,6 +26,8 @@ export default function Home() {
   const [exporting, setExporting] = useState(false);
   const [instr, setInstr] = useState<InstrumentKey>("auto");
   const [loadingInstr, setLoadingInstr] = useState<InstrumentKey | null>(null);
+  const [cameraMode, setCameraMode] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const playerRef = useRef<LivePlayer | null>(null);
   // Latest state for async sample-load callbacks (avoids stale closures).
   const liveRef = useRef({ mood: null as MoodKey | null, seed: 1, playing: false, instr: "auto" as InstrumentKey });
@@ -62,6 +66,31 @@ export default function Home() {
     setPlaying(false);
   };
 
+  // 表情驱动模式：摄像头读表情 → 防抖 → 自动切 mood（复用 start）
+  useEffect(() => {
+    if (!cameraMode) return;
+    const stabilizer = createMoodStabilizer({ holdMs: 800 });
+    let cancelled = false;
+    void startFaceMood((cats) => {
+      if (cancelled) return;
+      const confirmed = stabilizer.update(classifyBlendshapes(cats), performance.now());
+      if (confirmed) {
+        const s = liveRef.current;
+        start(confirmed, Math.floor(Math.random() * 1e9), s.instr);
+      }
+    }).catch((e: unknown) => {
+      if (cancelled) return;
+      setCameraError(e instanceof Error ? e.message : String(e));
+      setCameraMode(false);
+    });
+    return () => {
+      cancelled = true;
+      stopFaceMood();
+    };
+    // start 复用最新 liveRef，无需进依赖
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cameraMode]);
+
   const exportWav = async () => {
     if (!mood) return;
     setExporting(true);
@@ -93,6 +122,24 @@ export default function Home() {
 
       {/* sticky transport bar */}
       <div className="sticky top-3 z-50 flex flex-col items-center gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setCameraError(null);
+            setCameraMode((v) => !v);
+          }}
+          className={
+            "rounded-[4px] border-2 border-[#22302c] px-4 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest shadow-[0_4px_0_rgba(34,48,44,0.4)] active:translate-y-1 " +
+            (cameraMode ? "bg-[#a23b5e] text-[#efece3]" : "bg-[#efece3] text-[#22302c]")
+          }
+        >
+          {cameraMode ? "● 表情模式 ON" : "○ 表情驱动"}
+        </button>
+        {cameraError ? (
+          <div className="font-mono text-[10px] text-[#a23b5e]">
+            摄像头错误：{cameraError}
+          </div>
+        ) : null}
         <div className="select-none rounded-md border-2 border-[#22302c] bg-[#efece3]/95 px-5 py-2 text-center font-mono text-xs shadow-[3px_3px_0_rgba(34,48,44,0.3)]">
           {mood
             ? `${playing ? "▶" : "■"} ${MOODS[mood].cn} ${MOODS[mood].label} · seed ${seed}`
