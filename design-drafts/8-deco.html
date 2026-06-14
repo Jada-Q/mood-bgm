@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood BGM — Art Deco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --noir: #0e0c0a; --gold: #c9a86a; --gold-bright: #e6c98a; --cream: #ece4d4; --dim: #6b5d44; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--noir); color: var(--cream); font-family: "Jost", sans-serif; font-weight: 300; }
+  .cinzel { font-family: "Cinzel", serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 48px 120px; }
+
+  /* deco double-rule frame */
+  .frame { border-left: 1px solid var(--gold); border-right: 1px solid var(--gold); padding: 0 40px; position: relative; }
+  .frame::before, .frame::after { content: ""; position: absolute; left: 8px; right: 8px; height: 1px; background: var(--gold); }
+
+  nav { display: flex; justify-content: center; gap: 40px; padding: 28px 0; font-size: 11px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); }
+
+  .hero { text-align: center; padding: 70px 0 50px; position: relative; }
+  /* sunburst fan */
+  .fan { width: 180px; height: 90px; margin: 0 auto 36px; background: conic-gradient(from 270deg at 50% 100%, transparent 0deg, var(--gold) 5deg, transparent 10deg, var(--gold) 20deg, transparent 25deg, var(--gold) 35deg, transparent 40deg, var(--gold) 50deg, transparent 55deg, var(--gold) 65deg, transparent 70deg, var(--gold) 80deg, transparent 85deg); opacity: 0.55; }
+  .hero .top { font-size: 12px; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; }
+  .hero h1 { font-family: "Cinzel", serif; font-size: clamp(48px, 8vw, 96px); font-weight: 500; letter-spacing: 0.08em; line-height: 1.05; color: var(--gold-bright); }
+  .hero .rule { width: 60px; height: 1px; background: var(--gold); margin: 28px auto; position: relative; }
+  .hero .rule::before { content: "◆"; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); color: var(--gold); font-size: 10px; background: var(--noir); padding: 0 8px; }
+  .hero .desc { font-size: 15px; color: var(--dim); max-width: 420px; margin: 0 auto; line-height: 1.9; letter-spacing: 0.02em; }
+
+  .transport { display: flex; justify-content: center; gap: 40px; padding: 36px 0; margin: 48px 0; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; }
+  .transport span { color: var(--dim); cursor: pointer; transition: 0.3s; }
+  .transport span:hover { color: var(--gold-bright); }
+  .transport .now { color: var(--gold); }
+
+  .label { text-align: center; font-family: "Cinzel", serif; font-size: 16px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); margin: 48px 0 32px; }
+  .moods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .mood { border: 1px solid var(--gold); padding: 28px 32px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.4s; position: relative; }
+  .mood::after { content: ""; position: absolute; inset: 5px; border: 1px solid transparent; transition: 0.4s; }
+  .mood:hover { background: rgba(201,168,106,0.06); }
+  .mood:hover::after { border-color: var(--gold); }
+  .mood .cn { font-family: "Cinzel", serif; font-size: 28px; font-weight: 500; color: var(--gold-bright); letter-spacing: 0.05em; }
+  .mood .en { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dim); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="frame">
+      <nav>
+        <span>Mood</span><span>◆</span><span>BGM</span>
+      </nav>
+
+      <header class="hero">
+        <div class="fan"></div>
+        <div class="top">An Endless Score</div>
+        <h1 class="cinzel">MOOD BGM</h1>
+        <div class="rule"></div>
+        <p class="desc">选一种情绪，得到一段永不重复的配乐。情绪藏在结构里——音阶、和弦、速度，不在音色里。</p>
+      </header>
+
+      <div class="transport">
+        <span>▷ Play</span>
+        <span class="now">温馨 Cozy</span>
+        <span>↻ New</span>
+        <span>↓ WAV</span>
+      </div>
+
+      <div class="label cinzel">The Moods</div>
+      <div class="moods">
+        <div class="mood"><span class="cn cinzel">欢快</span><span class="en">Cheerful</span></div>
+        <div class="mood"><span class="cn cinzel">胜利</span><span class="en">Victory</span></div>
+        <div class="mood"><span class="cn cinzel">怀旧</span><span class="en">Nostalgic</span></div>
+        <div class="mood"><span class="cn cinzel">梦幻</span><span class="en">Dreamy</span></div>
+        <div class="mood"><span class="cn cinzel">冥想</span><span class="en">Meditative</span></div>
+        <div class="mood"><span class="cn cinzel">太空</span><span class="en">Space</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

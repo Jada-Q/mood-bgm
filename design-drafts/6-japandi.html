@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood BGM — Japandi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #efebe2; --ink: #2b2823; --gray: #9a9388; --line: #d4cdc0; --seal: #b0543f; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: "Zen Kaku Gothic New", sans-serif; font-weight: 300; }
+  .mincho { font-family: "Zen Old Mincho", serif; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 64px 140px; position: relative; }
+
+  nav { display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.25em; color: var(--gray); text-transform: uppercase; }
+  nav .logo { font-family: "Zen Old Mincho", serif; font-size: 16px; letter-spacing: 0.15em; color: var(--ink); }
+
+  /* centered breathing entrance */
+  .enter { text-align: center; padding: 100px 0 40px; }
+  .enter .station { font-size: 13px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--gray); }
+  .enter h1 { font-family: "Zen Old Mincho", serif; font-size: clamp(56px, 9vw, 116px); font-weight: 400; letter-spacing: 0.04em; margin: 36px 0 0; line-height: 1.05; }
+  .enter .jp { font-size: 14px; letter-spacing: 0.5em; color: var(--gray); margin-top: 24px; }
+  .enter .desc { font-size: 14px; color: var(--gray); max-width: 360px; margin: 32px auto 0; line-height: 2; }
+
+  /* vertical seal accent */
+  .vseal { position: absolute; top: 180px; right: 56px; writing-mode: vertical-rl; font-family: "Zen Old Mincho", serif; font-size: 14px; letter-spacing: 0.3em; color: var(--seal); }
+
+  .transport { display: flex; justify-content: center; gap: 48px; padding: 40px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 64px 0 80px; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; }
+  .transport span { color: var(--gray); cursor: pointer; }
+  .transport span:hover { color: var(--ink); }
+  .transport .now { color: var(--ink); letter-spacing: 0.1em; }
+
+  .label { font-size: 11px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+  .moods { border-top: 1px solid var(--line); }
+  .mood { display: flex; align-items: baseline; gap: 28px; padding: 24px 4px; border-bottom: 1px solid var(--line); cursor: pointer; transition: 0.4s; }
+  .mood:hover { padding-left: 16px; background: rgba(255,255,255,0.4); }
+  .mood .idx { font-size: 11px; color: var(--gray); width: 28px; }
+  .mood .cn { font-family: "Zen Old Mincho", serif; font-size: 30px; font-weight: 400; letter-spacing: 0.06em; }
+  .mood .en { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gray); }
+  .mood .meta { margin-left: auto; font-size: 11px; color: var(--gray); letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <span class="logo mincho">Mood BGM</span>
+      <span>音 / Sound · JP / EN</span>
+    </nav>
+
+    <div class="vseal mincho">情緒は構造に宿る</div>
+
+    <header class="enter">
+      <div class="station">An Endless Score</div>
+      <h1 class="mincho">情緒の音</h1>
+      <div class="jp mincho">ムード ビージーエム</div>
+      <p class="desc">選一種情緒，得一段永不重複的配樂。<br>情緒藏於結構——音階、和聲、速度。</p>
+    </header>
+
+    <div class="transport">
+      <span>▷ 奏でる</span>
+      <span class="now">温馨 Cozy</span>
+      <span>↻ 新しく</span>
+      <span>↓ 保存</span>
+    </div>
+
+    <div class="label">情緒一覧 — Moods</div>
+    <div class="moods">
+      <div class="mood"><span class="idx">01</span><span class="cn mincho">温馨</span><span class="en">Cozy</span><span class="meta">緩 · 長調</span></div>
+      <div class="mood"><span class="idx">02</span><span class="cn mincho">冥想</span><span class="en">Meditative</span><span class="meta">静 · Lydian</span></div>
+      <div class="mood"><span class="idx">03</span><span class="cn mincho">慵懒</span><span class="en">Lazy</span><span class="meta">緩 · Swing</span></div>
+      <div class="mood"><span class="idx">04</span><span class="cn mincho">怀旧</span><span class="en">Nostalgic</span><span class="meta">中 · 短調</span></div>
+      <div class="mood"><span class="idx">05</span><span class="cn mincho">梦幻</span><span class="en">Dreamy</span><span class="meta">浮 · Echo</span></div>
+    </div>
+  </div>
+</body>
+</html>

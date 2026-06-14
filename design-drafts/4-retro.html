@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood BGM — Retro CRT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0a0f0a; --green: #39ff14; --cyan: #00f0d0; --amber: #ffb000; --dim: #1a3a1a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--green); font-family: "VT323", monospace; font-size: 20px; min-height: 100vh; position: relative; overflow-x: hidden; }
+  /* CRT scanlines + flicker */
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 2px, transparent 4px); }
+  body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 99; background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.5)); }
+  .px { font-family: "Press Start 2P", monospace; }
+  .glow { text-shadow: 0 0 6px currentColor, 0 0 12px currentColor; }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 32px 100px; }
+  .topbar { display: flex; justify-content: space-between; font-size: 16px; color: var(--cyan); border-bottom: 2px solid var(--dim); padding-bottom: 12px; letter-spacing: 1px; }
+
+  .title { text-align: center; padding: 70px 0 50px; }
+  .title h1 { font-size: clamp(20px, 5vw, 44px); color: var(--green); line-height: 1.4; }
+  .title .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .title p { font-size: 22px; color: var(--amber); margin-top: 28px; letter-spacing: 1px; }
+
+  .console { border: 2px solid var(--green); border-radius: 4px; padding: 18px 22px; margin-bottom: 36px; box-shadow: 0 0 12px rgba(57,255,20,0.3), inset 0 0 20px rgba(57,255,20,0.06); }
+  .console .line { font-size: 22px; }
+  .console .line .k { color: var(--cyan); }
+  .console .ctrls { display: flex; gap: 24px; margin-top: 14px; font-size: 18px; }
+  .console .ctrls span { color: var(--amber); cursor: pointer; }
+  .console .ctrls span:hover { color: var(--green); text-shadow: 0 0 8px currentColor; }
+
+  .grid-label { font-size: 16px; color: var(--cyan); letter-spacing: 2px; margin: 32px 0 16px; }
+  .moods { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .mood { border: 2px solid var(--dim); padding: 18px 14px; cursor: pointer; transition: 0.15s; position: relative; }
+  .mood:hover { border-color: var(--green); background: rgba(57,255,20,0.08); box-shadow: 0 0 14px rgba(57,255,20,0.4); }
+  .mood .id { font-size: 13px; color: var(--cyan); }
+  .mood .cn { font-size: 30px; margin-top: 4px; }
+  .mood .en { font-size: 15px; color: var(--amber); letter-spacing: 1px; }
+  .mood:hover .cn { text-shadow: 0 0 8px var(--green); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar"><span>MOOD-BGM.SYS</span><span>● REC · 8-BIT MODE</span></div>
+
+    <div class="title">
+      <h1 class="px glow">MOOD BGM<span class="blink">_</span></h1>
+      <p>&gt; SELECT A MOOD TO GENERATE ENDLESS SOUNDTRACK</p>
+    </div>
+
+    <div class="console">
+      <div class="line">&gt; NOW PLAYING: <span class="k glow">欢快 / CHEERFUL</span> · SEED 0x4F2A</div>
+      <div class="ctrls">
+        <span>[▶ PLAY]</span><span>[↻ NEW]</span><span>[■ STOP]</span><span>[↓ WAV]</span>
+      </div>
+    </div>
+
+    <div class="grid-label">&gt;&gt; MOOD BANK [06]</div>
+    <div class="moods">
+      <div class="mood"><div class="id">01</div><div class="cn">欢快</div><div class="en">CHEERFUL</div></div>
+      <div class="mood"><div class="id">02</div><div class="cn">竞速</div><div class="en">RACING</div></div>
+      <div class="mood"><div class="id">03</div><div class="cn">胜利</div><div class="en">VICTORY</div></div>
+      <div class="mood"><div class="id">04</div><div class="cn">BOSS</div><div class="en">BOSS</div></div>
+      <div class="mood"><div class="id">05</div><div class="cn">太空</div><div class="en">SPACE</div></div>
+      <div class="mood"><div class="id">06</div><div class="cn">暗黑</div><div class="en">DARK</div></div>
+    </div>
+  </div>
+</body>
+</html>

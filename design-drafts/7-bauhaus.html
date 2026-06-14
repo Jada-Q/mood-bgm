@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood BGM — Bauhaus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #f2ede4; --black: #1a1a1a; --red: #e63327; --yellow: #f5c518; --blue: #2b5fb0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--black); font-family: "Archivo", sans-serif; }
+  .black { font-family: "Archivo Black", sans-serif; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 0 120px; }
+
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 40px; border-bottom: 4px solid var(--black); }
+  nav .brand { font-family: "Archivo Black"; font-size: 18px; text-transform: uppercase; letter-spacing: -0.02em; }
+  nav .meta { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* constructivist hero with geometric shapes */
+  .hero { display: grid; grid-template-columns: 1.4fr 1fr; border-bottom: 4px solid var(--black); }
+  .hero .left { padding: 60px 40px; border-right: 4px solid var(--black); position: relative; }
+  .hero h1 { font-family: "Archivo Black"; font-size: clamp(64px, 11vw, 150px); line-height: 0.86; text-transform: uppercase; letter-spacing: -0.03em; }
+  .hero h1 .r { color: var(--red); }
+  .hero .desc { font-size: 16px; font-weight: 500; max-width: 360px; margin-top: 28px; line-height: 1.5; }
+  .hero .right { position: relative; overflow: hidden; }
+  /* geometric shapes */
+  .circle { position: absolute; width: 200px; height: 200px; border-radius: 50%; background: var(--blue); top: 40px; left: 40px; }
+  .tri { position: absolute; width: 0; height: 0; border-left: 110px solid transparent; border-right: 110px solid transparent; border-bottom: 190px solid var(--yellow); bottom: 0; right: 30px; }
+  .square { position: absolute; width: 130px; height: 130px; background: var(--red); bottom: 50px; left: 30px; }
+  .diag { position: absolute; width: 4px; height: 140%; background: var(--black); top: -20%; left: 55%; transform: rotate(20deg); }
+
+  /* transport bar */
+  .transport { display: flex; align-items: stretch; border-bottom: 4px solid var(--black); }
+  .transport > div { padding: 20px 28px; border-right: 4px solid var(--black); font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; cursor: pointer; }
+  .transport .play { background: var(--red); color: var(--paper); }
+  .transport .now { background: var(--yellow); flex: 1; }
+  .transport .x:hover { background: var(--black); color: var(--paper); }
+
+  /* mood grid as color blocks */
+  .moods { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .mood { aspect-ratio: 1.3; padding: 24px; border-right: 4px solid var(--black); border-bottom: 4px solid var(--black); display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; position: relative; overflow: hidden; }
+  .mood .cn { font-family: "Archivo Black"; font-size: 40px; text-transform: uppercase; line-height: 0.9; }
+  .mood .en { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; }
+  .mood .shape { position: absolute; opacity: 0.9; }
+  .m-red { background: var(--red); color: var(--paper); }
+  .m-blue { background: var(--blue); color: var(--paper); }
+  .m-yellow { background: var(--yellow); }
+  .m-paper { background: var(--paper); }
+  .mood .dot { position: absolute; bottom: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--black); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <span class="brand">Mood BGM</span>
+      <span class="meta">Synth / 1919 → 2026</span>
+    </nav>
+
+    <div class="hero">
+      <div class="left">
+        <h1>MOOD<br><span class="r">BGM</span></h1>
+        <p class="desc">情绪藏在结构里——音阶、和弦、速度。一架合成器，奏尽每一种心情。</p>
+      </div>
+      <div class="right">
+        <div class="diag"></div>
+        <div class="circle"></div>
+        <div class="tri"></div>
+        <div class="square"></div>
+      </div>
+    </div>
+
+    <div class="transport">
+      <div class="play">▷ Play</div>
+      <div class="now">Now Playing — 欢快 / Cheerful · seed 4F2A</div>
+      <div class="x">↻ New</div>
+      <div class="x">↓ WAV</div>
+    </div>
+
+    <div class="moods">
+      <div class="mood m-red"><div class="cn">欢快</div><div class="en">Cheerful</div><div class="dot"></div></div>
+      <div class="mood m-blue"><div class="cn">冥想</div><div class="en">Meditative</div></div>
+      <div class="mood m-yellow"><div class="cn">竞速</div><div class="en">Racing</div><div class="dot"></div></div>
+      <div class="mood m-paper"><div class="cn">心碎</div><div class="en">Heartbroken</div></div>
+      <div class="mood m-yellow"><div class="cn">胜利</div><div class="en">Victory</div></div>
+      <div class="mood m-blue"><div class="cn">太空</div><div class="en">Space</div><div class="dot"></div></div>
+    </div>
+  </div>
+</body>
+</html>

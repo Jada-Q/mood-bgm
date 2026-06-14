@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood BGM — Soft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #5b4a52; --soft: #fff9f5; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    color: var(--ink); font-family: "Quicksand", sans-serif; min-height: 100vh;
+    background: linear-gradient(135deg, #ffe3ec 0%, #fde2ff 30%, #e0f0ff 60%, #e3fff0 100%);
+    background-attachment: fixed;
+  }
+  .serif { font-family: "Fraunces", serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 48px 120px; }
+
+  nav { display: flex; justify-content: space-between; align-items: center; }
+  nav .brand { font-family: "Fraunces", serif; font-size: 22px; font-weight: 500; font-style: italic; }
+  nav .links { font-size: 13px; display: flex; gap: 24px; opacity: 0.6; }
+
+  .hero { text-align: center; padding: 90px 0 60px; }
+  .hero h1 { font-family: "Fraunces", serif; font-size: clamp(60px, 11vw, 140px); font-weight: 400; line-height: 0.95; letter-spacing: -0.02em; }
+  .hero h1 em { font-style: italic; color: #e87fa8; }
+  .hero p { font-size: 18px; max-width: 440px; margin: 24px auto 0; line-height: 1.65; opacity: 0.7; }
+
+  /* soft pill transport */
+  .transport { display: flex; justify-content: center; align-items: center; gap: 16px; margin: 40px 0 80px; }
+  .pill { background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); border-radius: 100px; padding: 14px 28px; font-size: 15px; box-shadow: 0 8px 24px rgba(180,140,160,0.15); cursor: pointer; transition: 0.3s; }
+  .pill:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(180,140,160,0.25); }
+  .pill.play { background: #e87fa8; color: white; font-weight: 600; }
+  .pill .now { color: #c2607f; font-weight: 600; }
+
+  .section-label { font-family: "Fraunces", serif; font-style: italic; font-size: 24px; margin: 48px 0 24px; opacity: 0.8; }
+  .moods { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+  .mood { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); border-radius: 28px; padding: 28px 26px; cursor: pointer; transition: 0.35s; box-shadow: 0 6px 20px rgba(180,140,160,0.12); }
+  .mood:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 16px 36px rgba(180,140,160,0.22); }
+  .mood .dot { width: 36px; height: 36px; border-radius: 50%; margin-bottom: 18px; }
+  .mood .cn { font-family: "Fraunces", serif; font-size: 30px; font-weight: 500; }
+  .mood .en { font-size: 13px; letter-spacing: 0.1em; opacity: 0.55; margin-top: 4px; }
+  .d1 { background: linear-gradient(135deg,#ffd1dc,#ffb3c6); }
+  .d2 { background: linear-gradient(135deg,#d4c1ff,#c4a7ff); }
+  .d3 { background: linear-gradient(135deg,#bfe9ff,#a3d5ff); }
+  .d4 { background: linear-gradient(135deg,#c8f4d8,#a7e9c0); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <div class="brand">Mood BGM</div>
+      <div class="links"><span>关于</span><span>JP / EN</span></div>
+    </nav>
+
+    <header class="hero">
+      <h1>选一种<br><em>心情</em></h1>
+      <p>得到一段永不重复的配乐。情绪藏在结构里——温柔地，自动地，为你流淌。</p>
+    </header>
+
+    <div class="transport">
+      <div class="pill play">▷ 播放</div>
+      <div class="pill"><span class="now">温馨 Cozy</span></div>
+      <div class="pill">↻ 换一首</div>
+      <div class="pill">↓ 保存</div>
+    </div>
+
+    <div class="section-label">温柔的情绪</div>
+    <div class="moods">
+      <div class="mood"><div class="dot d1"></div><div class="cn">温馨</div><div class="en">Cozy</div></div>
+      <div class="mood"><div class="dot d2"></div><div class="cn">梦幻</div><div class="en">Dreamy</div></div>
+      <div class="mood"><div class="dot d3"></div><div class="cn">冥想</div><div class="en">Meditative</div></div>
+      <div class="mood"><div class="dot d4"></div><div class="cn">慵懒</div><div class="en">Lazy</div></div>
+    </div>
+  </div>
+</body>
+</html>

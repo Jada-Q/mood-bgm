@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood BGM — Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=Noto+Sans+SC:wght@500;700;900&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root { --black: #0a0a0a; --white: #f4f4f0; --gray: #555; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--black); color: var(--white); font-family: "Archivo", sans-serif; }
+  .cn { font-family: "Noto Sans SC", sans-serif; }
+  .mono { font-family: "Space Mono", monospace; }
+
+  header { display: flex; justify-content: space-between; align-items: baseline; padding: 28px 48px; border-bottom: 1px solid #1e1e1e; }
+  header .brand { font-size: 14px; font-weight: 900; letter-spacing: 0.2em; text-transform: uppercase; }
+  header .meta { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray); }
+
+  .intro { padding: 80px 48px 40px; }
+  .intro h1 { font-size: clamp(48px, 9vw, 130px); font-weight: 900; line-height: 0.9; letter-spacing: -0.03em; text-transform: uppercase; }
+  .intro p { font-size: 14px; color: var(--gray); max-width: 420px; margin-top: 20px; line-height: 1.6; }
+
+  .transport { display: flex; gap: 32px; align-items: center; padding: 24px 48px; border-top: 1px solid #1e1e1e; border-bottom: 1px solid #1e1e1e; }
+  .transport span { font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }
+  .transport .gray { color: var(--gray); }
+  .transport .gray b { color: var(--white); }
+
+  /* specimen rows — each mood rendered HUGE */
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 4px 48px; border-bottom: 1px solid #1e1e1e; cursor: pointer; transition: background 0.25s, color 0.25s; }
+  .row:hover { background: var(--white); color: var(--black); }
+  .row .name { font-size: clamp(56px, 11vw, 150px); font-weight: 900; line-height: 1; letter-spacing: -0.02em; }
+  .row .info { text-align: right; font-size: 11px; letter-spacing: 0.1em; line-height: 1.8; color: var(--gray); }
+  .row:hover .info { color: var(--black); }
+  .row .info .big { font-size: 14px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: inherit; }
+
+  footer { padding: 80px 48px; }
+  footer .mark { font-size: clamp(60px, 16vw, 240px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.85; text-transform: uppercase; }
+  footer .sig { font-size: 11px; color: var(--gray); letter-spacing: 0.2em; text-transform: uppercase; margin-top: 16px; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">Mood BGM</div>
+    <div class="meta mono">Type Specimen / 57 Moods</div>
+  </header>
+
+  <section class="intro">
+    <h1>Mood<br>Specimen</h1>
+    <p>每一种情绪都是一张字体样张。点击行，听结构如何说话——音阶、和弦、速度，不靠音色。</p>
+  </section>
+
+  <div class="transport">
+    <span>▷ Play</span>
+    <span class="gray">Now · <b>紧张 TENSE</b></span>
+    <span class="gray">↻ New</span>
+    <span class="gray">↓ WAV</span>
+  </div>
+
+  <div class="rows">
+    <div class="row"><span class="name cn">欢快</span><span class="info"><span class="big">Cheerful</span><br>132 BPM · Major<br>Joyful Vol.</span></div>
+    <div class="row"><span class="name cn">心碎</span><span class="info"><span class="big">Heartbroken</span><br>68 BPM · Minor<br>Sorrow Vol.</span></div>
+    <div class="row"><span class="name cn">紧张</span><span class="info"><span class="big">Tense</span><br>140 BPM · Dim<br>Dark Vol.</span></div>
+    <div class="row"><span class="name cn">冥想</span><span class="info"><span class="big">Meditative</span><br>52 BPM · Lydian<br>Calm Vol.</span></div>
+    <div class="row"><span class="name cn">胜利</span><span class="info"><span class="big">Victory</span><br>118 BPM · Major<br>Epic Vol.</span></div>
+  </div>
+
+  <footer>
+    <div class="mark">Mood BGM</div>
+    <div class="sig mono">Emotion lives in structure — not in timbre · 2026</div>
+  </footer>
+</body>
+</html>
