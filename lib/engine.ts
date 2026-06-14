@@ -159,6 +159,8 @@ function schedulePiece(
 
 export interface LivePlayer {
   stop(): void;
+  /** 频谱分析节点（fftSize 64 → 32 bins），供可视化读取。pass-through，不影响声音。 */
+  analyser: AnalyserNode;
 }
 
 /** Play a mood live, looping until stopped. */
@@ -166,7 +168,10 @@ export function playLive(moodKey: MoodKey, seed: number, instrument: InstrumentK
   const ctx = new AudioContext();
   const master = ctx.createGain();
   master.gain.value = 0.16;
-  master.connect(makeReverb(ctx, ctx.destination));
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 64; // 32 frequency bins
+  master.connect(analyser);
+  analyser.connect(makeReverb(ctx, ctx.destination));
   const CHUNK = 16; // schedule 16s at a time
   let offset = ctx.currentTime + 0.08;
   let chunkNo = 0;
@@ -184,6 +189,7 @@ export function playLive(moodKey: MoodKey, seed: number, instrument: InstrumentK
       clearInterval(tick);
       void ctx.close();
     },
+    analyser,
   };
 }
 
