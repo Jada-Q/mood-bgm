@@ -32,13 +32,15 @@ async function ensureLandmarker(): Promise<FaceLandmarker> {
  */
 export async function startFaceMood(
   onBlend: (categories: BlendshapeCategory[]) => void,
+  previewEl?: HTMLVideoElement,
 ): Promise<void> {
   const lm = await ensureLandmarker();
 
   stream = await navigator.mediaDevices.getUserMedia({
     video: { width: 640, height: 480 },
   });
-  videoEl = document.createElement("video");
+  // 传了预览元素就用它（页面可见自拍），否则用隐藏 video 仅做检测
+  videoEl = previewEl ?? document.createElement("video");
   videoEl.srcObject = stream;
   videoEl.muted = true;
   videoEl.playsInline = true;

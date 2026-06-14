@@ -28,6 +28,12 @@ export default function Home() {
   const [loadingInstr, setLoadingInstr] = useState<InstrumentKey | null>(null);
   const [cameraMode, setCameraMode] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [facePanel, setFacePanel] = useState<{
+    top: { categoryName: string; score: number }[];
+    candidate: MoodKey | null;
+    confirmed: MoodKey | null;
+  } | null>(null);
+  const previewRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<LivePlayer | null>(null);
   // Latest state for async sample-load callbacks (avoids stale closures).
   const liveRef = useRef({ mood: null as MoodKey | null, seed: 1, playing: false, instr: "auto" as InstrumentKey });
@@ -71,14 +77,23 @@ export default function Home() {
     if (!cameraMode) return;
     const stabilizer = createMoodStabilizer({ holdMs: 800 });
     let cancelled = false;
+    let lastPanel = 0;
     void startFaceMood((cats) => {
       if (cancelled) return;
-      const confirmed = stabilizer.update(classifyBlendshapes(cats), performance.now());
-      if (confirmed) {
+      const now = performance.now();
+      const candidate = classifyBlendshapes(cats);
+      const switched = stabilizer.update(candidate, now);
+      if (switched) {
         const s = liveRef.current;
-        start(confirmed, Math.floor(Math.random() * 1e9), s.instr);
+        start(switched, Math.floor(Math.random() * 1e9), s.instr);
       }
-    }).catch((e: unknown) => {
+      // 节流更新面板（~150ms），避免 30fps 狂 render
+      if (now - lastPanel > 150) {
+        lastPanel = now;
+        const top = [...cats].sort((a, b) => b.score - a.score).slice(0, 3);
+        setFacePanel({ top, candidate, confirmed: stabilizer.getState().confirmed });
+      }
+    }, previewRef.current ?? undefined).catch((e: unknown) => {
       if (cancelled) return;
       setCameraError(e instanceof Error ? e.message : String(e));
       setCameraMode(false);
@@ -86,6 +101,7 @@ export default function Home() {
     return () => {
       cancelled = true;
       stopFaceMood();
+      setFacePanel(null);
     };
     // start 复用最新 liveRef，无需进依赖
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,6 +206,36 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {cameraMode ? (
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+          <video
+            ref={previewRef}
+            muted
+            playsInline
+            className="w-[220px] rounded-lg border-2 border-[#22302c] [transform:scaleX(-1)]"
+          />
+          <div className="min-w-[200px] rounded-lg border-2 border-[#22302c] bg-[#efece3]/95 p-3 font-mono text-[11px]">
+            <div className="mb-2 font-bold uppercase tracking-widest">表情检测</div>
+            {facePanel ? (
+              <>
+                {facePanel.top.map((c) => (
+                  <div key={c.categoryName} className="flex justify-between gap-4">
+                    <span className="opacity-70">{c.categoryName}</span>
+                    <span>{c.score.toFixed(2)}</span>
+                  </div>
+                ))}
+                <div className="mt-2 border-t border-[#22302c]/30 pt-2">
+                  候选：{facePanel.candidate ? MOODS[facePanel.candidate].cn : "—"}
+                </div>
+                <div>已切：{facePanel.confirmed ? MOODS[facePanel.confirmed].cn : "—"}</div>
+              </>
+            ) : (
+              <div className="opacity-60">等待摄像头…</div>
+            )}
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex max-w-3xl flex-col gap-8">
         {GROUPS.map((g) => (
