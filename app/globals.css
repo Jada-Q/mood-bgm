@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
-html,
-body {
-  background: #66c4bd;
-  color: #22302c;
-  font-family: Georgia, serif;
+html {
+  background: #f2ede4;
+  color: #1a1a1a;
+  font-family: "Archivo", system-ui, sans-serif;
 }
+/* body 背景透明：否则会盖住 -z-10 的可视化 canvas（负 z-index 在块背景之前绘制） */
+body {
+  color: #1a1a1a;
+  font-family: "Archivo", system-ui, sans-serif;
+}
+.archivo-black { font-family: "Archivo Black", sans-serif; }
