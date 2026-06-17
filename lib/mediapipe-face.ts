@@ -12,9 +12,30 @@ let stream: MediaStream | null = null;
 let videoEl: HTMLVideoElement | null = null;
 let rafId: number | null = null;
 let namesLogged = false;
+let consolePatched = false;
+
+/**
+ * MediaPipe 的 WASM 把诊断 INFO/WARNING（XNNPACK delegate / gl_context 等）
+ * 走 console.error 通道输出，Next.js dev overlay 见到 console.error 就弹窗误报。
+ * 一次性过滤这几条已知良性日志（只匹配特定字符串，绝不吞真正的 JS 错误）。
+ */
+function patchConsoleForMediaPipe() {
+  if (consolePatched) return;
+  consolePatched = true;
+  const orig = console.error.bind(console);
+  console.error = (...args: unknown[]) => {
+    const msg = String(args[0] ?? "");
+    if (/Created TensorFlow Lite|XNNPACK delegate|gl_context|FaceBlendshapesGraph|OpenGL error checking/i.test(msg)) {
+      console.debug("[mediapipe]", ...args);
+      return;
+    }
+    orig(...args);
+  };
+}
 
 async function ensureLandmarker(): Promise<FaceLandmarker> {
   if (landmarker) return landmarker;
+  patchConsoleForMediaPipe();
   const fileset = await FilesetResolver.forVisionTasks(WASM_URL);
   landmarker = await FaceLandmarker.createFromOptions(fileset, {
     baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
