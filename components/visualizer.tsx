@@ -36,7 +36,8 @@ void main() {
 }`;
 
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
-  const sh = gl.createShader(type)!;
+  const sh = gl.createShader(type);
+  if (!sh) throw new Error("createShader failed (WebGL context lost?)");
   gl.shaderSource(sh, src);
   gl.compileShader(sh);
   if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
@@ -55,13 +56,15 @@ interface Props {
 
 export function Visualizer({ analyser, style, moodColor }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // 颜色走 ref：换 mood 时平滑更新，不重建整个 WebGL context
+  // analyser / color 走 ref：切 mood（analyser 变）时不重建 WebGL，避免 context 耗尽
+  const analyserRef = useRef(analyser);
+  analyserRef.current = analyser;
   const colorRef = useRef(moodColor);
   colorRef.current = moodColor;
 
   useEffect(() => {
     // 阶段 A 只实现 spectrum，其余风格留到阶段 B
-    if (style !== "spectrum" || !analyser) return;
+    if (style !== "spectrum") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false });
@@ -76,11 +79,19 @@ export function Visualizer({ analyser, style, moodColor }: Props) {
     resize();
     window.addEventListener("resize", resize);
 
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
-    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    // setup — 任何一步失败就降级跳过，不让整页崩
+    let prog: WebGLProgram | null = null;
+    try {
+      prog = gl.createProgram();
+      if (!prog) throw new Error("createProgram failed");
+      gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
+      gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG));
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+        throw new Error("program link failed: " + gl.getProgramInfoLog(prog));
+      }
+    } catch (e) {
+      console.debug("[visualizer] WebGL setup skipped:", e);
       window.removeEventListener("resize", resize);
       return;
     }
@@ -103,13 +114,18 @@ export function Visualizer({ analyser, style, moodColor }: Props) {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    const bins = new Uint8Array(analyser.frequencyBinCount); // 32
+    const bins = new Uint8Array(32); // fftSize 64 → 32 bins
     const freq = new Float32Array(32);
     const t0 = performance.now();
     let raf = 0;
     const loop = () => {
-      analyser.getByteFrequencyData(bins);
-      for (let i = 0; i < 32; i++) freq[i] = (bins[i] ?? 0) / 255;
+      const a = analyserRef.current;
+      if (a) {
+        a.getByteFrequencyData(bins);
+        for (let i = 0; i < 32; i++) freq[i] = (bins[i] ?? 0) / 255;
+      } else {
+        freq.fill(0); // 未播放：粒子静止
+      }
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform1fv(uFreq, freq);
@@ -126,7 +142,7 @@ export function Visualizer({ analyser, style, moodColor }: Props) {
       window.removeEventListener("resize", resize);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [analyser, style]);
+  }, [style]); // 只依赖 style — analyser/color 走 ref，切 mood 不重建 WebGL
 
   return (
     <canvas
