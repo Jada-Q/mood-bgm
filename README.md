@@ -1,8 +1,6 @@
 # Mood BGM
 
-Pick a mood — get an endless, never-repeating soundtrack, synthesized
-live in your browser. Export any piece as a 32-second WAV and drop it
-into your project.
+Pick a mood — or let your webcam read your expression — for an endless, never-repeating soundtrack, synthesized live in your browser, with a live WebGL spectrum visualizer and a Bauhaus interface. Export any piece as a 32-second WAV and drop it into your project.
 
 The trick: **emotion lives in structure, not samples.** Each mood maps
 to a scale, a chord progression, a tempo range, waveforms and drum
